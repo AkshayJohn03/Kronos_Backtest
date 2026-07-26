@@ -53,7 +53,7 @@ def fetch_nifty_ist(symbol="^NSEI", interval="1m", range_param="7d"):
     
     return df
 
-data_dir = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\data"
+data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 os.makedirs(data_dir, exist_ok=True)
 
 print("=" * 80)

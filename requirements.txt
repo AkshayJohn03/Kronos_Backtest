@@ -1,0 +1,11 @@
+torch
+transformers
+pandas
+numpy
+yfinance
+streamlit
+matplotlib
+einops
+flash_attention
+scikit-learn
+seaborn
