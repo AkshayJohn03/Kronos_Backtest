@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import time
 import torch
+import numpy as np
 
 # Setup paths
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,12 +26,13 @@ device = "cpu"
 print("Loading model...")
 tokenizer = KronosTokenizer.from_pretrained("NeoQuasar/Kronos-Tokenizer-base")
 model = Kronos.from_pretrained("NeoQuasar/Kronos-small").to(device)
+model.eval()
 predictor = KronosPredictor(model, tokenizer, device=device, max_context=512)
 print("Model loaded successfully!")
 
 # 2. Fetch Latest Real Data
-print("\nFetching latest 1m data for simulation...")
-df = fetch_nifty_ist(interval="1m", range_param="7d")
+print("\nFetching latest 15m data for simulation...")
+df = fetch_nifty_ist(interval="15m", range_param="60d")
 df['timestamps'] = pd.to_datetime(df['timestamps'])
 
 lookback = 400
@@ -48,52 +50,70 @@ start_idx = total_bars - steps_to_roll - 1
 total_pnl = 0.0
 trades_won = 0
 
-for step in range(steps_to_roll):
-    curr_idx = start_idx + step
+def calculate_volatility(df_context):
+    returns = df_context['close'].pct_change().dropna()
+    return returns.std() * np.sqrt(len(returns))
 
-    # Historical Context (Past 'lookback' bars up to curr_idx)
-    x_df = df.iloc[curr_idx - lookback : curr_idx][['open', 'high', 'low', 'close', 'volume', 'amount']].copy()
-    x_ts = df.iloc[curr_idx - lookback : curr_idx]['timestamps'].copy()
+vol_threshold = 0.25 # Set threshold based on Deep Backtest results for 15m
+skipped_trades = 0
 
-    # The true 'next' bar (the one we are predicting)
-    target_ts = df.iloc[curr_idx : curr_idx + 1]['timestamps'].copy()
-    act_bar = df.iloc[curr_idx]
 
-    start_p = x_df['close'].iloc[-1]
+with torch.no_grad():
+    for step in range(steps_to_roll):
+        curr_idx = start_idx + step
 
-    # Kronos Predicts
-    pred_df = predictor.predict(
-        df=x_df, x_timestamp=x_ts, y_timestamp=target_ts,
-        pred_len=1, T=1.0, top_p=0.9, sample_count=1, verbose=False
-    )
+        # Historical Context (Past 'lookback' bars up to curr_idx)
+        x_df = df.iloc[curr_idx - lookback : curr_idx][['open', 'high', 'low', 'close', 'volume', 'amount']].copy()
+        x_ts = df.iloc[curr_idx - lookback : curr_idx]['timestamps'].copy()
 
-    pred_p = pred_df['close'].iloc[0]
-    pred_move = pred_p - start_p
-    pred_dir = 1 if pred_move > 0 else (-1 if pred_move < 0 else 0)
+        # The true 'next' bar (the one we are predicting)
+        target_ts = df.iloc[curr_idx : curr_idx + 1]['timestamps'].copy()
 
-    action = "BUY CALL" if pred_dir == 1 else ("BUY PUT" if pred_dir == -1 else "HOLD")
+        current_vol = calculate_volatility(x_df)
+        if current_vol > vol_threshold:
+            print(f"[{target_ts.iloc[0].strftime('%H:%M')}] High External Pressure Detected (Vol: {current_vol:.3f}). Skipping trade.")
+            skipped_trades += 1
+            continue
 
-    # Ground Truth Actual
-    act_p = act_bar['close']
-    act_move = act_p - start_p
+        act_bar = df.iloc[curr_idx]
 
-    # Trade Outcome
-    pnl = act_move * pred_dir
-    is_win = pnl > 0
-    total_pnl += pnl
-    if is_win: trades_won += 1
+        start_p = x_df['close'].iloc[-1]
 
-    print("-" * 50)
-    print(f"Time (IST): {target_ts.iloc[0].strftime('%Y-%m-%d %H:%M')}")
-    print(f"Context Close: {start_p:.2f}")
-    print(f"Kronos Prediction: {pred_p:.2f} (Expected Move: {pred_move:+.2f} pts) -> Action: {action}")
-    print(f"Actual Close: {act_p:.2f} (Actual Move: {act_move:+.2f} pts)")
-    print(f"Trade Outcome: {'WIN' if is_win else 'LOSS'} | PnL: {pnl:+.2f} pts")
-    time.sleep(1) # Simulate real-time delay
+        # Kronos Predicts
+        pred_df = predictor.predict(
+            df=x_df, x_timestamp=x_ts, y_timestamp=target_ts,
+            pred_len=1, T=1.0, top_p=0.9, sample_count=1, verbose=False
+        )
+
+        pred_p = pred_df['close'].iloc[0]
+        pred_move = pred_p - start_p
+        pred_dir = 1 if pred_move > 0 else (-1 if pred_move < 0 else 0)
+
+        action = "BUY CALL" if pred_dir == 1 else ("BUY PUT" if pred_dir == -1 else "HOLD")
+
+        # Ground Truth Actual
+        act_p = act_bar['close']
+        act_move = act_p - start_p
+
+        # Trade Outcome
+        pnl = act_move * pred_dir
+        is_win = pnl > 0
+        total_pnl += pnl
+        if is_win: trades_won += 1
+
+        print("-" * 50)
+        print(f"Time (IST): {target_ts.iloc[0].strftime('%Y-%m-%d %H:%M')}")
+        print(f"Context Close: {start_p:.2f}")
+        print(f"Kronos Prediction: {pred_p:.2f} (Expected Move: {pred_move:+.2f} pts) -> Action: {action}")
+        print(f"Actual Close: {act_p:.2f} (Actual Move: {act_move:+.2f} pts)")
+        print(f"Trade Outcome: {'WIN' if is_win else 'LOSS'} | PnL: {pnl:+.2f} pts")
+        time.sleep(1) # Simulate real-time delay
 
 print("=" * 50)
 print("PAPER TRADING SIMULATION COMPLETE")
-print(f"Total Trades: {steps_to_roll}")
+print(f"Total Trades Analyzed: {steps_to_roll}")
+print(f"Trades Executed: {steps_to_roll - skipped_trades}")
+print(f"Trades Skipped (Volatility Buffer): {skipped_trades}")
 print(f"Win Rate: {(trades_won/steps_to_roll)*100:.1f}%")
 print(f"Cumulative PnL: {total_pnl:+.2f} pts (Slippage Not Considered)")
 print("=" * 50)

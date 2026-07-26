@@ -27,6 +27,7 @@ print("=" * 80)
 device = "cpu"
 tokenizer = KronosTokenizer.from_pretrained("NeoQuasar/Kronos-Tokenizer-base")
 model = Kronos.from_pretrained("NeoQuasar/Kronos-small").to(device)
+model.eval()
 predictor = KronosPredictor(model, tokenizer, device=device, max_context=512)
 print("Model & Tokenizer successfully loaded!")
 
@@ -45,55 +46,56 @@ def run_mode1_static_horizon(df, tf_label, lookback=400, pred_len=15, num_evals=
     start_idx = lookback
     eval_count = min(num_evals, (total_bars - lookback - pred_len) // step + 1)
     
-    for i in range(eval_count):
-        curr_idx = start_idx + i * step
-        if curr_idx + pred_len > total_bars:
-            break
+    with torch.no_grad():
+        for i in range(eval_count):
+            curr_idx = start_idx + i * step
+            if curr_idx + pred_len > total_bars:
+                break
 
-        x_df = df.iloc[curr_idx - lookback : curr_idx][['open', 'high', 'low', 'close', 'volume', 'amount']].copy()
-        x_ts = df.iloc[curr_idx - lookback : curr_idx]['timestamps'].copy()
-        y_ts = df.iloc[curr_idx : curr_idx + pred_len]['timestamps'].copy()
-        act_df = df.iloc[curr_idx : curr_idx + pred_len][['open', 'high', 'low', 'close', 'volume']].copy()
+            x_df = df.iloc[curr_idx - lookback : curr_idx][['open', 'high', 'low', 'close', 'volume', 'amount']].copy()
+            x_ts = df.iloc[curr_idx - lookback : curr_idx]['timestamps'].copy()
+            y_ts = df.iloc[curr_idx : curr_idx + pred_len]['timestamps'].copy()
+            act_df = df.iloc[curr_idx : curr_idx + pred_len][['open', 'high', 'low', 'close', 'volume']].copy()
 
-        pred_df = predictor.predict(
-            df=x_df, x_timestamp=x_ts, y_timestamp=y_ts,
-            pred_len=pred_len, T=1.0, top_p=0.9, sample_count=1, verbose=False
-        )
+            pred_df = predictor.predict(
+                df=x_df, x_timestamp=x_ts, y_timestamp=y_ts,
+                pred_len=pred_len, T=1.0, top_p=0.9, sample_count=1, verbose=False
+            )
 
-        start_p = x_df['close'].iloc[-1]
-        act_end = act_df['close'].iloc[-1]
-        pred_end = pred_df['close'].iloc[-1]
+            start_p = x_df['close'].iloc[-1]
+            act_end = act_df['close'].iloc[-1]
+            pred_end = pred_df['close'].iloc[-1]
 
-        act_move = act_end - start_p
-        pred_move = pred_end - start_p
+            act_move = act_end - start_p
+            pred_move = pred_end - start_p
 
-        act_dir = 1 if act_move > 0 else (-1 if act_move < 0 else 0)
-        pred_dir = 1 if pred_move > 0 else (-1 if pred_move < 0 else 0)
+            act_dir = 1 if act_move > 0 else (-1 if act_move < 0 else 0)
+            pred_dir = 1 if pred_move > 0 else (-1 if pred_move < 0 else 0)
 
-        is_win = (act_dir == pred_dir)
-        pnl_pts = act_move * pred_dir
-        mae = abs(act_move - pred_move)
+            is_win = (act_dir == pred_dir)
+            pnl_pts = act_move * pred_dir
+            mae = abs(act_move - pred_move)
 
-        results.append({
-            'start_time': x_ts.iloc[-1].strftime('%Y-%m-%d %H:%M IST'),
-            'end_time': y_ts.iloc[-1].strftime('%Y-%m-%d %H:%M IST'),
-            'start_price': start_p,
-            'actual_end': act_end,
-            'pred_end': pred_end,
-            'actual_move_pts': act_move,
-            'pred_move_pts': pred_move,
-            'is_win': is_win,
-            'pnl_pts': pnl_pts,
-            'mae': mae
-        })
-
-        if i == eval_count - 1 or len(plot_samples) == 0:
-            plot_samples.append({
-                'ctx_ts': x_ts, 'ctx_close': x_df['close'],
-                'act_ts': y_ts, 'act_close': act_df['close'],
-                'pred_ts': y_ts, 'pred_close': pred_df['close'],
-                'tf_label': tf_label
+            results.append({
+                'start_time': x_ts.iloc[-1].strftime('%Y-%m-%d %H:%M IST'),
+                'end_time': y_ts.iloc[-1].strftime('%Y-%m-%d %H:%M IST'),
+                'start_price': start_p,
+                'actual_end': act_end,
+                'pred_end': pred_end,
+                'actual_move_pts': act_move,
+                'pred_move_pts': pred_move,
+                'is_win': is_win,
+                'pnl_pts': pnl_pts,
+                'mae': mae
             })
+
+            if i == eval_count - 1 or len(plot_samples) == 0:
+                plot_samples.append({
+                    'ctx_ts': x_ts, 'ctx_close': x_df['close'],
+                    'act_ts': y_ts, 'act_close': act_df['close'],
+                    'pred_ts': y_ts, 'pred_close': pred_df['close'],
+                    'tf_label': tf_label
+                })
 
     res_df = pd.DataFrame(results)
     win_rate = (res_df['is_win'].mean()) * 100 if len(res_df) > 0 else 0
@@ -150,52 +152,53 @@ def run_mode2_rolling_feed(df, tf_label, lookback=400, steps_to_roll=20):
     act_timestamps = []
     act_closes = []
 
-    for step in range(steps_to_roll):
-        curr_idx = start_idx + step
-        if curr_idx >= total_bars:
-            break
+    with torch.no_grad():
+        for step in range(steps_to_roll):
+            curr_idx = start_idx + step
+            if curr_idx >= total_bars:
+                break
 
-        x_df = df.iloc[curr_idx - lookback : curr_idx][['open', 'high', 'low', 'close', 'volume', 'amount']].copy()
-        x_ts = df.iloc[curr_idx - lookback : curr_idx]['timestamps'].copy()
+            x_df = df.iloc[curr_idx - lookback : curr_idx][['open', 'high', 'low', 'close', 'volume', 'amount']].copy()
+            x_ts = df.iloc[curr_idx - lookback : curr_idx]['timestamps'].copy()
         
-        target_ts = df.iloc[curr_idx : curr_idx + 1]['timestamps'].copy()
-        act_bar = df.iloc[curr_idx]
+            target_ts = df.iloc[curr_idx : curr_idx + 1]['timestamps'].copy()
+            act_bar = df.iloc[curr_idx]
 
-        pred_df = predictor.predict(
-            df=x_df, x_timestamp=x_ts, y_timestamp=target_ts,
-            pred_len=1, T=1.0, top_p=0.9, sample_count=1, verbose=False
-        )
+            pred_df = predictor.predict(
+                df=x_df, x_timestamp=x_ts, y_timestamp=target_ts,
+                pred_len=1, T=1.0, top_p=0.9, sample_count=1, verbose=False
+            )
 
-        start_p = x_df['close'].iloc[-1]
-        act_p = act_bar['close']
-        pred_p = pred_df['close'].iloc[0]
+            start_p = x_df['close'].iloc[-1]
+            act_p = act_bar['close']
+            pred_p = pred_df['close'].iloc[0]
 
-        act_move = act_p - start_p
-        pred_move = pred_p - start_p
+            act_move = act_p - start_p
+            pred_move = pred_p - start_p
 
-        act_dir = 1 if act_move > 0 else (-1 if act_move < 0 else 0)
-        pred_dir = 1 if pred_move > 0 else (-1 if pred_move < 0 else 0)
+            act_dir = 1 if act_move > 0 else (-1 if act_move < 0 else 0)
+            pred_dir = 1 if pred_move > 0 else (-1 if pred_move < 0 else 0)
 
-        is_win = (act_dir == pred_dir)
-        pnl_pts = act_move * pred_dir
-        mae = abs(act_p - pred_p)
+            is_win = (act_dir == pred_dir)
+            pnl_pts = act_move * pred_dir
+            mae = abs(act_p - pred_p)
 
-        results.append({
-            'timestamp': target_ts.iloc[0].strftime('%H:%M IST'),
-            'start_price': start_p,
-            'actual_close': act_p,
-            'pred_close': pred_p,
-            'actual_move': act_move,
-            'pred_move': pred_move,
-            'is_win': is_win,
-            'pnl_pts': pnl_pts,
-            'mae': mae
-        })
+            results.append({
+                'timestamp': target_ts.iloc[0].strftime('%H:%M IST'),
+                'start_price': start_p,
+                'actual_close': act_p,
+                'pred_close': pred_p,
+                'actual_move': act_move,
+                'pred_move': pred_move,
+                'is_win': is_win,
+                'pnl_pts': pnl_pts,
+                'mae': mae
+            })
 
-        pred_timestamps.append(target_ts.iloc[0])
-        pred_closes.append(pred_p)
-        act_timestamps.append(target_ts.iloc[0])
-        act_closes.append(act_p)
+            pred_timestamps.append(target_ts.iloc[0])
+            pred_closes.append(pred_p)
+            act_timestamps.append(target_ts.iloc[0])
+            act_closes.append(act_p)
 
     res_df = pd.DataFrame(results)
     win_rate = (res_df['is_win'].mean()) * 100 if len(res_df) > 0 else 0
