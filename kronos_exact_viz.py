@@ -5,14 +5,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Add Kronos_src to path
-kronos_src_path = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\Kronos_src"
+base_dir = os.path.dirname(os.path.abspath(__file__))
+kronos_src_path = os.path.join(base_dir, "Kronos_src")
 if kronos_src_path not in sys.path:
     sys.path.append(kronos_src_path)
 
 from model import KronosTokenizer, Kronos, KronosPredictor
 
-data_dir = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\data"
-plots_dir = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\exact_kronos_repo_viz"
+data_dir = r"/app/data"
+plots_dir = r"/app/plots/exact_kronos_repo_viz"
 os.makedirs(plots_dir, exist_ok=True)
 
 print("=" * 80)

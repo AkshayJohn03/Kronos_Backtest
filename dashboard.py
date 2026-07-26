@@ -8,7 +8,7 @@ st.set_page_config(page_title="Kronos AI Nifty50 IST Dashboard", layout="wide", 
 st.title("📈 Kronos AI Nifty50 Option Trading Dashboard")
 st.markdown("### Real-Time Out-of-Sample Backtesting & Directional Win Rate Analytics (IST)")
 
-base_dir = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos"
+base_dir = r"/app"
 data_dir = os.path.join(base_dir, "data")
 plots_mode1 = os.path.join(base_dir, "plots", "mode1_static_horizon")
 plots_mode2 = os.path.join(base_dir, "plots", "mode2_rolling_feed")
@@ -26,16 +26,16 @@ mode = st.sidebar.radio("Select Prediction Mode / Chart View:", [
 # Performance Summary Matrix
 metrics_data = {
     "1 Minute": {
-        "Mode 1": {"win_rate": 73.3, "pnl": 124.10, "avg_pnl": 8.27, "mae": 25.83},
-        "Mode 2": {"win_rate": 45.0, "pnl": 2.25, "avg_pnl": 0.11, "mae": 8.67}
+        "Mode 1": {"win_rate": 53.3, "pnl": -62.80, "avg_pnl": -4.19, "mae": 23.39},
+        "Mode 2": {"win_rate": 55.0, "pnl": 29.85, "avg_pnl": 1.49, "mae": 6.28}
     },
     "5 Minute": {
-        "Mode 1": {"win_rate": 46.7, "pnl": -217.75, "avg_pnl": -14.52, "mae": 70.12},
-        "Mode 2": {"win_rate": 45.0, "pnl": 49.45, "avg_pnl": 2.47, "mae": 12.09}
+        "Mode 1": {"win_rate": 46.7, "pnl": -167.25, "avg_pnl": -11.15, "mae": 82.38},
+        "Mode 2": {"win_rate": 45.0, "pnl": -15.65, "avg_pnl": -0.78, "mae": 14.46}
     },
     "15 Minute": {
-        "Mode 1": {"win_rate": 53.3, "pnl": 262.20, "avg_pnl": 17.48, "mae": 125.73},
-        "Mode 2": {"win_rate": 60.0, "pnl": 60.60, "avg_pnl": 3.03, "mae": 24.67}
+        "Mode 1": {"win_rate": 66.7, "pnl": 818.40, "avg_pnl": 54.56, "mae": 141.28},
+        "Mode 2": {"win_rate": 35.0, "pnl": -129.00, "avg_pnl": -6.45, "mae": 26.36}
     }
 }
 

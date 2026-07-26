@@ -11,49 +11,49 @@ This audited report presents the rigorous evaluation of the **Kronos AI Model** 
 
 | Mode | Timeframe | Evaluated Windows | Win Rate (%) | Total PnL (Pts) | Avg PnL / Trade (Pts) | MAE (Pts) |
 |---|---|---|---|---|---|---|
-| Mode 1 (Static Horizon) | 1 Minute | 15 | **73.3%** | +124.10 | +8.27 | 25.83 |
-| Mode 2 (Sequential Rolling Feed) | 1 Minute | 20 | **45.0%** | +2.25 | +0.11 | 8.67 |
-| Mode 1 (Static Horizon) | 5 Minute | 15 | **46.7%** | -217.75 | -14.52 | 70.12 |
-| Mode 2 (Sequential Rolling Feed) | 5 Minute | 20 | **45.0%** | +49.45 | +2.47 | 12.09 |
-| Mode 1 (Static Horizon) | 15 Minute | 15 | **53.3%** | +262.20 | +17.48 | 125.73 |
-| Mode 2 (Sequential Rolling Feed) | 15 Minute | 20 | **60.0%** | +60.60 | +3.03 | 24.67 |
+| Mode 1 (Static Horizon) | 1 Minute | 15 | **46.7%** | -103.40 | -6.89 | 28.03 |
+| Mode 2 (Sequential Rolling Feed) | 1 Minute | 20 | **40.0%** | -3.05 | -0.15 | 8.42 |
+| Mode 1 (Static Horizon) | 5 Minute | 15 | **40.0%** | -212.45 | -14.16 | 73.31 |
+| Mode 2 (Sequential Rolling Feed) | 5 Minute | 20 | **50.0%** | -4.55 | -0.23 | 14.32 |
+| Mode 1 (Static Horizon) | 15 Minute | 15 | **73.3%** | +940.80 | +62.72 | 103.70 |
+| Mode 2 (Sequential Rolling Feed) | 15 Minute | 20 | **70.0%** | +152.10 | +7.61 | 18.66 |
 
 ## Timeframe Breakdown & Audit Findings
 
 ### Mode 1 (Static Horizon) - 1 Minute
-- **Directional Accuracy (Win Rate):** `73.3%`
-- **Cumulative PnL Points:** `+124.10 pts`
-- **Average Error (MAE):** `25.83 pts`
+- **Directional Accuracy (Win Rate):** `46.7%`
+- **Cumulative PnL Points:** `-103.40 pts`
+- **Average Error (MAE):** `28.03 pts`
 - **Evaluated Windows:** `15` continuous out-of-sample steps
 
 ### Mode 2 (Sequential Rolling Feed) - 1 Minute
-- **Directional Accuracy (Win Rate):** `45.0%`
-- **Cumulative PnL Points:** `+2.25 pts`
-- **Average Error (MAE):** `8.67 pts`
+- **Directional Accuracy (Win Rate):** `40.0%`
+- **Cumulative PnL Points:** `-3.05 pts`
+- **Average Error (MAE):** `8.42 pts`
 - **Evaluated Windows:** `20` continuous out-of-sample steps
 
 ### Mode 1 (Static Horizon) - 5 Minute
-- **Directional Accuracy (Win Rate):** `46.7%`
-- **Cumulative PnL Points:** `-217.75 pts`
-- **Average Error (MAE):** `70.12 pts`
+- **Directional Accuracy (Win Rate):** `40.0%`
+- **Cumulative PnL Points:** `-212.45 pts`
+- **Average Error (MAE):** `73.31 pts`
 - **Evaluated Windows:** `15` continuous out-of-sample steps
 
 ### Mode 2 (Sequential Rolling Feed) - 5 Minute
-- **Directional Accuracy (Win Rate):** `45.0%`
-- **Cumulative PnL Points:** `+49.45 pts`
-- **Average Error (MAE):** `12.09 pts`
+- **Directional Accuracy (Win Rate):** `50.0%`
+- **Cumulative PnL Points:** `-4.55 pts`
+- **Average Error (MAE):** `14.32 pts`
 - **Evaluated Windows:** `20` continuous out-of-sample steps
 
 ### Mode 1 (Static Horizon) - 15 Minute
-- **Directional Accuracy (Win Rate):** `53.3%`
-- **Cumulative PnL Points:** `+262.20 pts`
-- **Average Error (MAE):** `125.73 pts`
+- **Directional Accuracy (Win Rate):** `73.3%`
+- **Cumulative PnL Points:** `+940.80 pts`
+- **Average Error (MAE):** `103.70 pts`
 - **Evaluated Windows:** `15` continuous out-of-sample steps
 
 ### Mode 2 (Sequential Rolling Feed) - 15 Minute
-- **Directional Accuracy (Win Rate):** `60.0%`
-- **Cumulative PnL Points:** `+60.60 pts`
-- **Average Error (MAE):** `24.67 pts`
+- **Directional Accuracy (Win Rate):** `70.0%`
+- **Cumulative PnL Points:** `+152.10 pts`
+- **Average Error (MAE):** `18.66 pts`
 - **Evaluated Windows:** `20` continuous out-of-sample steps
 
 ## Methodological Rigor & Timezone Standardization

@@ -6,15 +6,16 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import torch
 
-kronos_src_path = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\Kronos_src"
+base_dir = os.path.dirname(os.path.abspath(__file__))
+kronos_src_path = os.path.join(base_dir, "Kronos_src")
 if kronos_src_path not in sys.path:
     sys.path.append(kronos_src_path)
 
 from model import KronosTokenizer, Kronos, KronosPredictor
 
-data_dir = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\data"
-plots_dir_mode1 = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\mode1_static_horizon"
-plots_dir_mode2 = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\mode2_rolling_feed"
+data_dir = r"/app/data"
+plots_dir_mode1 = r"/app/plots/mode1_static_horizon"
+plots_dir_mode2 = r"/app/plots/mode2_rolling_feed"
 os.makedirs(plots_dir_mode1, exist_ok=True)
 os.makedirs(plots_dir_mode2, exist_ok=True)
 
@@ -270,7 +271,7 @@ print("=" * 80)
 print(summary_df.to_string(index=False))
 
 # Update Report
-report_path = r"C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\kronos_nifty_backtest_report.md"
+report_path = r"/app/kronos_nifty_backtest_report.md"
 with open(report_path, "w", encoding="utf-8") as f:
     f.write("# Kronos AI Nifty50 Comprehensive Dual-Mode Backtest & Audit Report\n\n")
     f.write("## Executive Summary\n")
