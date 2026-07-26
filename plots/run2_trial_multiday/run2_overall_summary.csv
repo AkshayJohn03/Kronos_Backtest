@@ -1,0 +1,4 @@
+timeframe,total_trials,total_windows,overall_win_rate_pct,overall_pnl_pts
+1 Minute,3,75,50.66666666666667,192.24609375
+5 Minute,3,15,40.0,-242.751953125
+15 Minute,3,3,33.33333333333333,-98.59765625
