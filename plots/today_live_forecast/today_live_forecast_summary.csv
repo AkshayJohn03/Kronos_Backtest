@@ -1,0 +1,4 @@
+timeframe,trigger_time,current_price,predicted_close,predicted_move_pts,signal,plot_file
+15 Minute,2026-07-27 15:14 IST,23988.94921875,23970.78,-18.169921875,BUY PUT (BEARISH),C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\today_live_forecast\today_live_15_minute.png
+5 Minute,2026-07-27 15:14 IST,23988.94921875,23892.723,-96.2265625,BUY PUT (BEARISH),C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\today_live_forecast\today_live_5_minute.png
+1 Minute,2026-07-27 15:14 IST,23987.55078125,23996.742,9.19140625,BUY CALL (BULLISH),C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\today_live_forecast\today_live_1_minute.png
