@@ -20,7 +20,7 @@ plots_pm_dir = os.path.join(base_dir, "plots", "afternoon_session_2pm_close")
 os.makedirs(plots_pm_dir, exist_ok=True)
 
 print("=" * 80)
-print("RUNNING AFTERNOON SESSION FORECAST (02:00 PM IST TO 03:30 PM IST CLOSE)...")
+print("RUNNING AFTERNOON SESSION FORECAST WITH 50, 100 & 200 SMA INDICATORS...")
 print("Target Machine: CPU Execution Mode")
 print("=" * 80)
 
@@ -60,9 +60,10 @@ def run_afternoon_session_forecast(file_name, tf_label, lookback=400):
     df['timestamps'] = pd.to_datetime(df['timestamps'])
     df['time_only'] = df['timestamps'].dt.time
 
-    # Calculate Moving Averages
-    df['ema20'] = df['close'].ewm(span=20, adjust=False).mean()
+    # Calculate 50, 100, 200 Simple Moving Averages
     df['sma50'] = df['close'].rolling(window=50, min_periods=10).mean()
+    df['sma100'] = df['close'].rolling(window=100, min_periods=20).mean()
+    df['sma200'] = df['close'].rolling(window=200, min_periods=30).mean()
 
     # Find closest candle to 14:00:00 IST (02:00 PM IST)
     target_time = time(14, 0, 0)
@@ -78,7 +79,6 @@ def run_afternoon_session_forecast(file_name, tf_label, lookback=400):
     else:
         trigger_idx_in_day = pm_indices[0]
 
-    # Map back to main df index
     global_idx = df[(df['date_str'] == latest_date) & (df['timestamps'] == day_df.iloc[trigger_idx_in_day]['timestamps'])].index[0]
 
     if global_idx < lookback:
@@ -87,7 +87,6 @@ def run_afternoon_session_forecast(file_name, tf_label, lookback=400):
     x_df = df.iloc[global_idx - lookback : global_idx][['open', 'high', 'low', 'close', 'volume', 'amount']].copy()
     x_ts = df.iloc[global_idx - lookback : global_idx]['timestamps'].copy()
 
-    # Remaining candles in the day up to 15:30 IST
     remaining_day = day_df.iloc[trigger_idx_in_day:].copy()
     pred_len = len(remaining_day) if len(remaining_day) > 0 else 10
 
@@ -120,20 +119,20 @@ def run_afternoon_session_forecast(file_name, tf_label, lookback=400):
     print(f"Directional Win: {'WIN' if is_win else 'MISMATCH'} | Signal: {signal}")
     print("=" * 80)
 
-    # Render Professional OHLC Candlestick Plot with Moving Averages
+    # Render Professional OHLC Candlestick Plot with 50, 100, 200 SMA Overlays
     fig, ax = plt.subplots(figsize=(14, 7))
 
-    # Subset context candles
     ctx_subset = df.iloc[max(0, global_idx - 35) : global_idx].copy()
     draw_ohlc_candlesticks(ax, ctx_subset, width_ratio=0.5, alpha=0.7)
     draw_ohlc_candlesticks(ax, act_df, width_ratio=0.5, alpha=1.0)
 
-    # Plot Moving Averages
+    # Plot 50, 100, 200 SMA Moving Averages
     full_plot_subset = df.iloc[max(0, global_idx - 35) : global_idx + pred_len].copy()
-    ax.plot(full_plot_subset['timestamps'], full_plot_subset['ema20'], label='20 EMA (Cyan)', color='#06b6d4', linewidth=1.8, linestyle='-')
-    ax.plot(full_plot_subset['timestamps'], full_plot_subset['sma50'], label='50 SMA (Purple)', color='#8b5cf6', linewidth=1.8, linestyle='-')
+    ax.plot(full_plot_subset['timestamps'], full_plot_subset['sma50'], label='50 SMA (Cyan)', color='#06b6d4', linewidth=1.8, linestyle='-')
+    ax.plot(full_plot_subset['timestamps'], full_plot_subset['sma100'], label='100 SMA (Purple)', color='#8b5cf6', linewidth=1.8, linestyle='-')
+    ax.plot(full_plot_subset['timestamps'], full_plot_subset['sma200'], label='200 SMA (Gold Solid)', color='#eab308', linewidth=2.0, linestyle='-')
 
-    # Plot Kronos Prediction Path
+    # Plot Kronos Forecast Path
     ax.plot(y_ts, pred_df['close'], label='Kronos AI Predicted Path (Gold Dashed)', color='#f59e0b', linewidth=3.0, linestyle='--', marker='o', markersize=4)
 
     # Vertical 2:00 PM IST Trigger Line
@@ -151,8 +150,9 @@ def run_afternoon_session_forecast(file_name, tf_label, lookback=400):
     custom_legend = [
         Line2D([0], [0], color='#10b981', lw=4, label='Bullish Market Candle'),
         Line2D([0], [0], color='#ef4444', lw=4, label='Bearish Market Candle'),
-        Line2D([0], [0], color='#06b6d4', lw=1.8, label='20 EMA (Cyan Trendline)'),
-        Line2D([0], [0], color='#8b5cf6', lw=1.8, label='50 SMA (Purple Trendline)'),
+        Line2D([0], [0], color='#06b6d4', lw=1.8, label='50 SMA (Cyan Line)'),
+        Line2D([0], [0], color='#8b5cf6', lw=1.8, label='100 SMA (Purple Line)'),
+        Line2D([0], [0], color='#eab308', lw=2.0, label='200 SMA (Gold Line)'),
         Line2D([0], [0], color='#f59e0b', lw=3.0, linestyle='--', marker='o', label=f'Kronos Predicted Path ({pred_move:+.2f} pts)'),
         Line2D([0], [0], color='#374151', lw=2, linestyle=':', label=f'Trigger: {trigger_str}')
     ]
@@ -162,7 +162,7 @@ def run_afternoon_session_forecast(file_name, tf_label, lookback=400):
     plt.tight_layout()
     plt.savefig(plot_file, dpi=150)
     plt.close()
-    print(f"Saved Afternoon Session Plot: {plot_file}")
+    print(f"Saved Afternoon Session Plot with 50/100/200 SMA: {plot_file}")
 
     return {
         'timeframe': tf_label,
@@ -192,10 +192,5 @@ for fname, tf_label in timeframes:
         results_pm.append(res)
 
 summary_df = pd.DataFrame(results_pm)
-print("\n" + "=" * 80)
-print("AFTERNOON SESSION (02:00 PM TO 03:30 PM IST CLOSE) SUMMARY TABLE")
-print("=" * 80)
-print(summary_df.to_string(index=False))
-
 summary_df.to_csv(os.path.join(plots_pm_dir, "afternoon_session_summary.csv"), index=False)
-print("\nAFTERNOON SESSION FORECAST COMPLETED SUCCESSFULLY!")
+print("\nAFTERNOON SESSION FORECAST WITH 50, 100 & 200 SMA COMPLETED SUCCESSFULLY!")
