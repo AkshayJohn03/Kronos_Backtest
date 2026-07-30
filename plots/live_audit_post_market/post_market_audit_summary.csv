@@ -1,0 +1,4 @@
+timeframe,date,trigger_time,price_at_215pm,predicted_close,actual_close,predicted_move_pts,actual_move_pts,is_win,mae_pts,signal,plot_file
+15 Minute,2026-07-30,2026-07-30 14:00 IST,24255.69921875,24282.662,24317.150390625,26.962890625,61.451171875,True,34.48828125,BUY CALL (BULLISH),C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_audit_post_market\audit_215pm_15_minute.png
+5 Minute,2026-07-30,2026-07-30 14:10 IST,24255.69921875,24310.316,24317.150390625,54.6171875,61.451171875,True,6.833984375,BUY CALL (BULLISH),C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_audit_post_market\audit_215pm_5_minute.png
+1 Minute,2026-07-30,2026-07-30 14:14 IST,24255.69921875,24281.418,24317.150390625,25.71875,61.451171875,True,35.732421875,BUY CALL (BULLISH),C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_audit_post_market\audit_215pm_1_minute.png
