@@ -1,0 +1,4 @@
+timeframe,trigger_time,current_price,next_15m_price,next_15m_move_pts,predicted_close,predicted_move_close_pts,signal,plot_file
+15 Minute,2026-07-30 14:16 IST,24251.55078125,24241.273,-10.27734375,24252.047,0.49609375,NEUTRAL / NO TRADE,C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_215pm_forecast\live_215pm_15_minute.png
+5 Minute,2026-07-30 14:16 IST,24251.55078125,24253.885,2.333984375,24363.01,111.458984375,BUY CALL (BULLISH),C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_215pm_forecast\live_215pm_5_minute.png
+1 Minute,2026-07-30 14:16 IST,24251.650390625,24251.36,-0.291015625,24288.59,36.939453125,BUY CALL (BULLISH),C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_215pm_forecast\live_215pm_1_minute.png
