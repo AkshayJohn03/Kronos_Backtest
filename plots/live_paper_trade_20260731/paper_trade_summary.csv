@@ -1,0 +1,4 @@
+timeframe,trigger_time,current_price,atm_strike,next_15m_price,next_15m_move_pts,predicted_close,predicted_move_pts,pct_move,signal,option_type,option_strike,est_entry_premium,est_pnl_15m,est_pnl_close,plot_file
+5 Minute,2026-07-31 13:23 IST,24420.85,24400,24421.12,0.27,24283.46,-137.39,-0.563,BUY PUT (BEARISH),PE,24400,90.4,-0.1,68.7,C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_paper_trade_20260731\paper_trade_5_minute.png
+1 Minute,2026-07-31 13:23 IST,24422.15,24400,24400.94,-21.21,24376.6,-45.55,-0.187,BUY PUT (BEARISH),PE,24400,91.1,10.6,22.8,C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_paper_trade_20260731\paper_trade_1_minute.png
+15 Minute,2026-07-31 13:23 IST,24420.85,24400,24362.18,-58.67,24326.14,-94.71,-0.388,BUY PUT (BEARISH),PE,24400,90.4,29.3,47.4,C:\Users\Akshay.JOHN-XAVIER\OneDrive - Akkodis\Documents\Me\trade_kronos\plots\live_paper_trade_20260731\paper_trade_15_minute.png
